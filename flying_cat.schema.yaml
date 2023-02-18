@@ -1,0 +1,226 @@
+# Rime schema
+# encoding: utf-8
+
+schema:
+  name: "飞猫双拼"
+  schema_id: flying_cat
+  author:
+    - 圣殿骑士即游侠
+    - zebat
+  description: |
+    双拼+乱序+飞键，贴吧上找到的，双拼方案作者圣殿骑士即游侠，后续会根据个人喜好增加其它功能
+  version: 0.0
+
+switches:
+  - name: ascii_mode
+    reset: 0
+  - name: ascii_punct
+    states: ["，。", ",."]
+  - name: full_shape # 只使用半角标点
+    reset: 0
+  - name: traditionalization
+    states: ["简", "繁"]
+    reset: 0 
+
+engine:
+  processors:
+    - ascii_composer #处理西文模式及中西文切
+    - key_binder # 在特定條件下將按鍵綁定到其他按鍵，如重定義逗號、句號爲候選翻頁、開關快捷鍵等
+    - speller # 把字母追加到編碼串
+    - punctuator # 處理符號按鍵
+    - selector # 選字、換頁
+    - navigator # 移動插入點
+    - express_editor # 空格確認當前輸入、其他字符直接上屏
+  segmentors:
+    - ascii_segmentor #标识西文段落〔譬如在西文模式下〕字母直接上屛
+    - abc_segmentor # 標記輸入碼的類
+    - punct_segmentor # 劃界，與前後方的其他編碼區分開
+    - fallback_segmentor #将输入码连缀成一段
+  translators:
+    - punct_translator # 配合punct_segmentor轉換標點符號
+    - script_translator
+  filters:
+    - simplifier
+    - uniquifier
+
+speller:
+  alphabet: zyxwvutsrqponmlkjihgfedcba
+  delimiter: " '"
+  algebra: #文档：https://github.com/rime/home/wiki/SpellingAlgebra
+    #u和v的处理
+    - xform/^([jqxy])u(e|an)?$/$1v$2/
+    
+    #双拼 
+     #声母(顺序乱了是为了防止正则替换后再次被当作声母从而发生错误)
+    - xform/^(a|ai|ao|an|ang|e|er|en|o|ou)$/o$1/
+    - xform/^f/u/
+    - xform/^m/i/
+    - xform/^r/v/
+    - xform/^y/e/
+
+    - xform/^x/m/
+    - xform/^b/x/
+    - xform/^t/b/
+    - xform/^g/t/
+    - xform/^h/g/
+    - xform/^w/h/
+    - xform/^s([^h])/w$1/
+    - xform/^l/s/
+    - xform/^p/l/
+
+    - xform/^k/r/
+    - xform/^q/k/
+    - xform/^c([^h])/q$1/
+
+    - xform/^n/y/
+      #声母d为飞键对应d和p
+    - derive/^d/p/
+      #声母d，j，z自己对应自己故省略
+
+    - xform/^zh/c/
+    - xform/^ch/f/
+      #声母sh为飞键对应a和n
+    - derive/^sh/a/
+    - derive/^sh/n/
+    - erase/^sh.+$/
+
+
+     #韵母(^(.)的作用是防止替换后的声母被当作韵母处理)
+      #前面这些顺序乱了的原因同上
+       #韵母i是飞键对应k和x
+    - derive/^(.)i$/$1k/
+    - derive/^(.)i$/$1x/
+    - erase/^.i$/
+    - xform/^(.)e$/$1i/
+    - xform/^(.)a$/$1p/
+    - xform/^(.)o$/$1h/
+    - xform/^(.)u$/$1l/
+    - xform/^(.)v$/$1z/
+
+    - xform/^(.)uan$/$1q/
+    - xform/^(.)ue$/$1w/
+    - xform/^(.)ve$/$1w/
+    - xform/^(.)ing$/$1e/
+    - xform/^(.)uang$/$1e/
+    - xform/^(.)in$/$1r/
+    - xform/^(.)uai$/$1r/
+    - xform/^(.)iu$/$1t/
+    - xform/^(.)eng$/$1y/
+    - xform/^(.)vn$/$1y/
+    - xform/^(.)an$/$1u/
+    - xform/^(.)ou$/$1o/
+    - xform/^(.)ang$/$1a/
+    - xform/^(.)ei$/$1s/
+    - xform/^(.)ian$/$1d/
+    - xform/^(.)ua$/$1d/
+    - xform/^(.)un$/$1f/
+    - xform/^(.)ui$/$1g/
+    - xform/^(.)er$/$1g/
+    - xform/^(.)iang$/$1g/
+    - xform/^(.)uo$/$1h/
+    - xform/^(.)ao$/$1j/
+    - xform/^(.)ie$/$1c/
+    - xform/^(.)en$/$1v/
+    - xform/^(.)ia$/$1v/
+    - xform/^(.)iao$/$1b/
+    - xform/^(.)i?ong$/$1n/
+    - xform/^(.)ai$/$1m/
+    - xform/^(.)van$/$1m/
+
+translator:
+  dictionary: flying_cat # 設定 table_translator 使用的詞典名
+  db_class: tabledb #用户词典格式，tabledb（文本）或userdb（二进制）
+
+punctuator: #设定符号表
+  import_preset: symbols
+  full_shape:
+    "`": "｀"
+    "~": "～"
+    "!": "！"
+    "@": "＠"
+    "#": "＃"
+    "$": "￥"
+    "%": "％"
+    "^": "……"
+    "&": "＆"
+    "*": "×"
+    "(": "（"
+    ")": "）"
+    "_": "——"
+    "+": "＋"
+    "-": "－"
+    "=": "＝"
+    "[": "【"
+    "]": "】"
+    "{": "｛"
+    "}": "｝"
+    "|": "｜"
+    "\\": "、"
+    "/": "、"
+    ";": "；"
+    "'": "‘"
+    ",": "，"
+    ".": "。"
+    "<": "《"
+    ">": "》"
+    "?": "？"
+  half_shape:
+    "`": "·"
+    "~": "～"
+    "!": "！"
+    "@": "@"
+    "#": "#"
+    "$": "￥"
+    "%": "%"
+    "^": "……"
+    "&": "&"
+    "*": "×"
+    "(": "（"
+    ")": "）"
+    "_": "——"
+    "+": "+"
+    "-": "-"
+    "=": "="
+    "[": "【"
+    "]": "】"
+    "{": "{"
+    "}": "}"
+    "|": "|"
+    "\\": "、"
+    "/": "、"
+    ";": "；"
+    "'": {pair: ["‘", "’"]}
+    ",": "，"
+    ".": "。"
+    "<": "《"
+    ">": "》"
+    "?": "？"
+
+key_binder:
+  bindings:             # 每條定義包含條件、接收按鍵（IBus規格的鍵名，可加修飾符，如「Control+Return」）、發送按鍵
+
+    # - when:   paging    # 僅當已發生向後換頁時，
+    #   accept: comma     # 將「逗號」鍵……
+    #   send:   Page_Up   # 關聯到「向前換頁」；於是 navigator 將收到一發 Page_Up
+
+    # - when:   has_menu  # 只要有候選字即滿足條件
+    #   accept: period
+    #   send:   Page_Down
+
+    __patch:
+      - key_bindings:/move_by_word_with_tab  # tab 在单词间切换
+      - key_bindings:/paging_with_minus_equal  # 减号等号翻页
+      - key_bindings:/paging_with_comma_period   # 逗号句号翻页
+      - key_bindings:/paging_with_brackets   # 中括号翻页
+    
+ascii_composer:
+  switch_key:
+    Shift_L: commit_code   # 左 Shift 切换直接上屏字母
+    Shift_R: commit_code   # 右 Shift 切换直接上屏字母
+    # Control_L: noop
+    # Control_R: noop
+    # Caps_Lock: noop
+
+simplifier:
+  option_name: traditionalization
+  opencc_config: s2t.json

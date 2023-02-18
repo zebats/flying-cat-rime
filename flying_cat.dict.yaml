@@ -1,0 +1,23 @@
+# Rime dictionary
+# encoding: utf-8
+
+name: flying_cat
+version: 1.0
+sort: by_weight
+
+#词库是照搬四叶草输入法的https://github.com/fkxxyz/rime-cloverpinyin
+import_tables:
+  - flying_cat.base
+  - flying_cat.phrase
+  - THUOCL_animal
+  - THUOCL_caijing
+  - THUOCL_car
+  - THUOCL_chengyu
+  - THUOCL_diming
+  - THUOCL_food
+  - THUOCL_IT
+  - THUOCL_law
+  - THUOCL_lishimingren
+  - THUOCL_medical
+  - THUOCL_poem
+  - sogou_new_words
